@@ -70,6 +70,8 @@ for include_entry in tool_chain.findall(".//option[@superClass='com.st.stm32cube
 	if inc_dir != "../Core/Inc":
 		inc_dir = inc_dir.replace("../", "-I", 1)
 		include_dirs.append(inc_dir)
+include_dirs.append("-IDrivers/FS-CAN/src") #needed to add my own library by hand
+print(f"final include dir: {include_dirs}")
 if not include_dirs:
 	raise SCons.Errors.BuildError(
             errstr="%s Error: Cannot read include directories from project file "

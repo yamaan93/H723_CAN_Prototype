@@ -25,7 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "FreeRTOS.h"
 #include <stdio.h>
-#include <FS_CAN.h>
+#include "FS_CAN.h"
 
 /* USER CODE END Includes */
 
@@ -71,14 +71,9 @@ FDCAN_HandleTypeDef hfdcan1;
 UART_HandleTypeDef huart3;
 
 /* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-    .name = "defaultTask",
-    .stack_size = 128 * 8,
-    .priority = (osPriority_t)osPriorityNormal,
-};
-/* USER CODE BEGIN PV */
 
+/* USER CODE BEGIN PV */
+FS_CAN CAN1(&hfdcan1);
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,7 +86,7 @@ static void MX_FDCAN1_Init(void);
 void StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-
+void CAN_TX_Wrapper(void *parameters);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -166,10 +161,18 @@ int main(void)
     Error_Handler();
   }
   printf("Can inited\n");
+
+  xTaskCreate(
+      CAN_TX_Wrapper,
+      "CAN_TX",
+      1024,
+      NULL,
+      1,
+      NULL);
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  osKernelInitialize();
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
@@ -199,7 +202,7 @@ int main(void)
   /* USER CODE END RTOS_EVENTS */
 
   /* Start scheduler */
-  osKernelStart();
+  vTaskStartScheduler();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
@@ -520,7 +523,10 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void CAN_TX_Wrapper(void *parameters)
+{
+  CAN1.CAN_TX_Task(parameters);
+}
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */
