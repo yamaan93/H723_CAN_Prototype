@@ -165,7 +165,7 @@ int main(void)
   xTaskCreate(
       CAN_TX_Wrapper,
       "CAN_TX",
-      1024,
+      2048,
       NULL,
       1,
       NULL);
